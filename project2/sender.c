@@ -1,5 +1,5 @@
 // Reliable File transfer.
-// Written by Wenwen Li (NEU ID: 001830563)
+// Written by W. Li 
 // Date completed: 10-21-2017
 
 // This file is a UDP Sender program.

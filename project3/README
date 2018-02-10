@@ -5,7 +5,7 @@ Project3：
 
 CHORD Distributed Hash Table.
 
-This project is written by Wenwen Li (NEU ID: 001830563) for CS 5700: Fundamentals of Computer Networking.
+This project is written by W. Li for CS 5700: Fundamentals of Computer Networking.
 
 -------------------------------------------------------------------------------
 
@@ -22,7 +22,7 @@ Achieved functions:
   Use IP addresses and port numbers as identiers for the nodes.
 
 3. DHT Client
-  (To be continued after the final exam ...)
+  (To be continued ...)
 
 -------------------------------------------------------------------------------
 

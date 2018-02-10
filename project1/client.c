@@ -1,5 +1,5 @@
 // This file is a simple TCP client.
-// Written by Wenwen Li (NEU ID: 001830563)
+// Written by W. Li
 // Date completed: 09-28-2017
 
 #include <stdio.h>

@@ -1,5 +1,5 @@
 // Project 3: CHORD Distributed Hash Table.
-// Written by Wenwen Li (NEU ID: 001830563)
+// Written by W. Li
 // Date completed: 11-21-2017
 
 // This file is a DHT Peer program.
