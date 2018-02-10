@@ -44,7 +44,6 @@ int main(int argc, char const *argv[]) {
                      "Server name is cs5700f17.ccs.neu.edu");
   }
 
-  // NEU ID for li.wenw is 001830563
   char *my_id = argv[argc-1];
   // Test:
   //printf("%s\n", my_id);
