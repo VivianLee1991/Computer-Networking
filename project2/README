@@ -1,0 +1,129 @@
+Project2: 
+Reliable transfer file.
+
+This project is written by Wenwen Li for the course CS 5700: Fundamentals of
+Computer Networking.
+
+This project designs a pair of sender and receiver programs which allows the sender
+To reliably send a file to a receiver using UDP.
+
+There are 2 modes of the project:
+1. Stop-and-Wait (which is a special case of Go-Back-N, i.e. N = 1)
+2. Go-Back-N
+
+-------------------------------------------------------------------------------
+
+My submission includes 5 files:
+1. A makefile
+2. receiver.c
+3. sender.c
+4. shakespeare.txt (for test purpose)
+5. README
+
+-------------------------------------------------------------------------------
+
+How to run the program:
+1. make
+2. login a host (e.g. beret.ccs.neu.edu) to run the receiver:
+   ./receiver -h toque.ccs.neu.edu -p 15070 -m N 
+3. login another host (e.g. toque.ccs.neu.edu) to run the sender:
+   ./sender -h beret.ccs.neu.edu -p 15070 -f shakespeare.txt -m N
+
+Notes:
+1. To run the Stop-and-Wait protocol, choose N = 1.
+2. To run the Go-Back-N protocol, choose N as an integer greater than 1, N is
+   the number of packets sent in a single window.
+
+-------------------------------------------------------------------------------
+Design Approach:
+
+The protocol uses four types of packets:
+From the sender:
+  INIT: ‘1’ + [file name] + [file size] + [mode]
+  DATA: ‘3’ + [sequence number] + [file data]
+From the receiver:
+  ACK : ‘2’ + [expected sequence number]
+
+0. Prepare a file for test.
+1. Parse the command given by the user.
+2. Construct the receiver/sender address and the local address.
+3. Create 2 UDP sockets for each program: one for sending data to the receiver/
+   sender, another one is for receiving data from the given local port.
+4. Implement the Go-Back-N protocol:
+
+   4.1 Sender:
+
+   1) define packets.
+   2) open the given file, get the file size and compute the largest possible
+      sequence number.
+   3) Build an INIT packet and send it to the receiver.
+   4) If the sender successfully matches with the receiver, go to next step; 
+      Else, print a message on the screen and terminates the program.
+   5) Start sending DATA packets to the receiver:
+      A. read a window of data from the file into a buffer, and send them in
+         separate packets to the receiver.
+         Use a scroll array as the buffer. e.g. if mode =3, seq 1, 2, 3 are
+         received successfully; then send 4, 5, 6. Only 4 is acked, 5 and 6 are
+         lost. Next time, read 7 from the file, and store it in the buffer with 
+         The sequence of 7, 5, 6.
+      B. Set the alarm.
+      C. Receive ACKs for the sent packets. 
+         If receive no ACKs and timeout, resend. Try as many as 5 times in sending
+         a file.
+         If receive ACKs, close alarm for current window and update the current 
+         status of the sending process.
+      D. Repeat step A to C until sending complete. 
+         When receive the ACK for the packet with the largest seq number, stop
+         Sending, close file, close sockets, and return. 
+
+    4.2 Receiver:
+
+    1) define packets.
+    2) wait to receive an INIT packet.
+       check the INIT packet, if the sender’s mode matches with the receiver’s,
+       send back an ACK 0 and go to next step; else, send ACK -1 and terminates.
+    3) compute the largest seq number and create a new empty file with the name
+       [process id] + [received file name]
+    4) wait to receive DATA packets.
+       If receive a DATA packet with the expected seq number, send back an ACK 
+       and write the received file data into the new file.
+    5) repeat step 4) until receive the last packet. Stop receiving, close file,
+       Close sockets, and return.
+
+
+-------------------------------------------------------------------------------
+Main challenges:
+
+1. C programming.
+   Proper use of char arrays to store and copy data in memory. When it comes to 
+   Memory operations like memory set and memory copy, it is unsafe to use char
+   Pointers, which usually lead to memory overflow (error message like segmentation
+   fault, core dump, etc.)
+2. Organize the program structure.
+   I write helper functions to construct three types of packets, help functions
+   send and receive data, making the main function more clear.
+3. Read a window of data to memory instead of the whole file. 
+   I use the scroll array to solve this problem. The point is that, for each window
+   process, you may need to read less than a window of data. The data that are not 
+   received successfully should be kept in the buffer for resending.
+
+-------------------------------------------------------------------------------
+Test Strategy:
+
+Define functions to detect errors and output error messages. The program
+will terminate after detecting an error.
+
+1. UserErrorMessage()
+   Check two types of errors:
+   A. illegal format of command to call program, including incorrect number
+      of command arguments.
+   B. Any operation that breaks the design contract, e.g. mode mismatch, timeout
+      notification.
+
+2. SystemErrorMessage()
+   Check the errors caused by the system operation, including failure of socket
+   creation, connection, sending a message, and receiving a message.
+   
+Print out the system status, messages sent and received to check whether the
+program works properly.
+   e.g. print each ACK message to keep track of the transmit.

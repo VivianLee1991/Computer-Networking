@@ -1,0 +1,53 @@
+This program is written by Wenwen Li for the course CS 5700: Fundamentals of
+Computer Networking.
+
+This project designs a simple TCP client, which communicates with a server
+on the machine cs5700f17.ccs.neu.edu by using the C socket interface.
+
+The protocol uses four types of messages:
+HELLO   : cs5700fall2017 HELLO [your NEU ID]\n
+STATUS  : cs5700fall2017 STATUS [a number] [a math operator] [another number]\n
+SOLUTION: cs5700fall2017 [the solution]\n
+BYE     : cs5700fall2017 [a 64 byte secret flag] BYE\n
+
+-------------------------------------------------------------------------------
+Design Approach:
+
+1. Parse the command given by the user
+2. Convert the server address and port number
+3. Create a tcp socket and establish a connection with the server
+4. Send a HELLO message
+5. Receive message from the server, calculate the math expressions, send the
+   SOLUTION message back to the server. Continuing this step until receiving
+   a BYE message or a server termination.
+6. When receive a BYE message, print out the secret_flag.
+
+-------------------------------------------------------------------------------
+Main challenges:
+
+1. C programming
+   Proper use of char pointers for strings and string-related functions. I
+   write functions to construct the HELLO and SOLUTION messages, and to parse
+   the messages received from the sever.
+2. Convert the server's DNS address to IP address in in Network Byte Order.
+   I use the gethostbyname() function and sockaddr_in structure to do this job.
+3. Organize the program to make it clear and readable.
+
+-------------------------------------------------------------------------------
+Test Strategy:
+
+Define functions to detect errors and output error messages. The client program
+will terminate after detecting an error.
+1. UserErrorMessage()
+   Check two types of errors:
+   A. illegal format of command to call the client, including incorrect number
+      of command arguments, wrong server name.
+   B. illegal math operators received from the server, except "+", "-", "*" and
+      "/".
+   C. incorrect number of bytes sent by the client.
+   D. sever termination
+2. SystemErrorMessage()
+   Check the errors caused by the system operation, including failure of socket
+   creation, connection, sending a message, and receiving a message.
+Print out the system status, messages sent and received to check whether the
+client program works properly.
